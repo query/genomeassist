@@ -7,6 +7,9 @@ Fall 2013,
 
 ---
 
+For an introduction to GenomeAssist, see [the project
+writeup](writeup/writeup.pdf).
+
 The primary Django application, with Celery tasks, is located in the
 `genomeassist/` directory.
 Python dependencies can be installed using `pip -r requirements.txt`.

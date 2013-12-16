@@ -1,0 +1,74 @@
+.asteriskField {
+    display: none;
+}
+
+input[type="number"] {
+    width: 3em;
+    text-align: right;
+}
+
+.list-indented {
+    padding-left: 1em;
+}
+
+#aligner_add_type {
+    width: 10em;
+}
+
+#aligner_group .panel, #aligner_group iframe {
+    margin-bottom: 25px;
+}
+
+.form-really-inline {
+    display: inline-block;
+}
+
+.panel-body > dl:first-child:last-child {
+    margin: 0;
+}
+
+.panel-body > .pre-scrollable:first-child:last-child {
+    background: none;
+    margin: -15px;
+    border: none;
+    border-radius: 0;
+}
+
+.panel-collapse > table {
+    margin: 0;
+}
+
+.pre-scrollable {
+    overflow: auto;
+    white-space: pre;
+    word-break: normal;
+    word-wrap: normal;
+}
+
+.hitmap {
+    background: none;
+    border: none;
+    border-radius: 0;
+    position: relative;
+    height: 3em;
+    margin-bottom: 0;
+}
+
+.hitmap .hit {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+}
+
+.hitmap .hit:hover {
+    background-color: #d9534f;
+}
+
+.popover-title, .popover-content {
+    text-align: center;
+}
+
+.popover-title {
+    font-weight: bold;
+}

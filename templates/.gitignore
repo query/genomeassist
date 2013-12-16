@@ -1,0 +1,5 @@
+*.py[cdo]
+bower_components
+db.sqlite3
+manage.py
+genomeassist/local_settings.py

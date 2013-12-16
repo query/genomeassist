@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<nav class="navbar navbar-default navbar-static-top" role="navigation">
+<div class="container">
+<div class="navbar-header">
+<button class="navbar-toggle" data-target=".navbar-collapse" data-toggle="collapse" type="button">
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+</button>
+<a class="navbar-brand" href="{% url 'scheduler:home' %}">GenomeAssist</a>
+</div>
+<div class="collapse navbar-collapse">
+{% if user.is_authenticated %}
+<ul class="nav navbar-nav">
+<li><a href="{% url 'scheduler:create' %}">Create New Job</a></li>
+<li><a href="{% url 'scheduler:index' %}">View Jobs</a></li>
+</ul>
+<ul class="nav navbar-nav navbar-right">
+{% if user.is_staff %}
+<li><a href="{% url 'admin:index' %}">Admin</a></li>
+{% endif %}
+<li><a href="{% url 'logout' %}">Log out ({{user.username}})</a></li>
+</ul>
+{% endif %}
+</div>
+</div>
+</nav>
+
+<div class="container">
+<div class="page-header">
+<h1>{% block title %}{% endblock %}</h1>
+</div>
+{% block content %}{% endblock %}
+</div>
+{% endblock %}

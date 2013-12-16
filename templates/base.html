@@ -1,0 +1,18 @@
+{% load compressed %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GenomeAssist</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+{% compressed_css 'base' %}
+<!--[if lt IE 9]>
+{% compressed_js 'ie8' %}
+<![endif]-->
+</head>
+
+<body>
+{% block body %}{% endblock %}
+{% compressed_js 'base' %}
+</body>
+</html>

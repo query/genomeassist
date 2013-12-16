@@ -1,0 +1,16 @@
+{% extends 'default.html' %}
+{% load genomeassist %}
+{% load humanize %}
+
+{% block title %}
+Deletion confirmation
+{% endblock %}
+
+{% block content %}
+<p>Do you wish to undelete <a href="{% url 'scheduler:detail' job.id %}">{% if job.name %}the job “{{job.name}}”{% else %}this unnamed job{% endif %}</a>?</p>
+<form role="form" class="form-really-inline" action="{% url 'scheduler:undelete' job.id %}" method="post">
+{% csrf_token %}
+<button class="btn btn-success">Undelete</button>
+</form>
+<a href="{% url 'scheduler:index' %}" class="btn btn-default">Don’t undelete</a>
+{% endblock %}

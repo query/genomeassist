@@ -1,0 +1,12 @@
+{% extends 'default.html' %}
+
+{% block title %}
+Welcome
+{% endblock %}
+
+{% block content %}
+<ul class="nav nav-pills nav-stacked">
+<li><a href="{% url 'scheduler:create' %}">Create a new batch alignment job</a></li>
+<li><a href="{% url 'scheduler:index' %}">View existing and completed alignment jobs</a></li>
+</ul>
+{% endblock %}

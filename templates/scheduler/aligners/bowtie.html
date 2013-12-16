@@ -1,0 +1,127 @@
+<fieldset>
+  <legend>Alignment</legend>
+
+  <ul class="list-unstyled">
+    <li class="radio">
+      <label>
+        <input type="radio" name="alignment" value="n" id="alignment_is_n" checked>
+        Use a Maq-like policy
+      </label>
+
+      <ul class="list-unstyled list-indented">
+        <li class="checkbox">
+          <label>
+            <input type="checkbox" id="seedmms_enabled" data-requires="alignment_is_n">
+            Custom seed mismatch maximum:
+          </label>
+          <input type="number" name="seedmms" value="2" data-requires="seedmms_enabled"> mismatches
+          (<a href="http://bowtie-bio.sourceforge.net/manual.shtml#the--n-alignment-mode"><kbd>-n</kbd></a>)
+        </li>
+
+        <li class="checkbox">
+          <label>
+            <input type="checkbox" id="seedlen_enabled" data-requires="alignment_is_n">
+            Custom seed length:
+          </label>
+          <input type="number" name="seedlen" value="28" data-requires="seedlen_enabled"> bases
+          (<a href="http://bowtie-bio.sourceforge.net/manual.shtml#bowtie-options-l"><kbd>-l</kbd></a>)
+        </li>
+
+        <li class="checkbox">
+          <label>
+            <input type="checkbox" id="maqerr_enabled" data-requires="alignment_is_n">
+            Do not allow Phred quality values from mismatches
+            over entire alignment to exceed
+          </label>
+          <input type="number" name="maqerr" value="70" data-requires="maqerr_enabled">
+          (<a href="http://bowtie-bio.sourceforge.net/manual.shtml#bowtie-options-e"><kbd>-e</kbd></a>)
+        </li>
+
+        <li class="checkbox">
+          <label>
+            <input type="checkbox" name="nomaqround" data-requires="alignment_is_n">
+            Do not round quality values internally
+          </label>
+          (<a href="http://bowtie-bio.sourceforge.net/manual.shtml#bowtie-options-nomaqround"><kbd>--nomaqround</kbd></a>)
+        </li>
+      </ul>
+    </li>
+
+    <li class="radio">
+      <label>
+        <input type="radio" name="alignment" value="v" id="alignment_is_v">
+        Allow no more than
+      </label>
+      <input type="number" name="v" data-requires="alignment_is_v">
+      mismatches
+      (<a href="http://bowtie-bio.sourceforge.net/manual.shtml#bowtie-options-v"><kbd>-v</kbd></a>)
+    </li>
+  </ul>
+</fieldset>
+
+<fieldset>
+  <legend>Reporting</legend>
+
+  <ul class="list-unstyled">
+    <li class="radio">
+      <label>
+        <input type="radio" name="reporting" value="k" id="reporting_is_k" checked>
+        Report up to
+      </label>
+      <input type="number" name="k" value="1" data-requires="reporting_is_k">
+      valid alignment(s) per read
+      (<a href="http://bowtie-bio.sourceforge.net/manual.shtml#bowtie-options-k"><kbd>-k</kbd></a>)
+    </li>
+
+    <li class="radio">
+      <label>
+        <input type="radio" name="reporting" value="a">
+        Report all valid alignments
+      </label>
+      (<a href="http://bowtie-bio.sourceforge.net/manual.shtml#bowtie-options-a"><kbd>-a</kbd></a>)
+    </li>
+  </ul>
+
+  <ul class="list-unstyled">
+    <li class="checkbox">
+      <label>
+        <input type="checkbox" id="m_enabled">
+        Do not include reads with more than
+      </label>
+      <input type="number" name="m" data-requires="m_enabled">
+      reportable alignments
+      (<a href="http://bowtie-bio.sourceforge.net/manual.shtml#bowtie-options-m"><kbd>-m</kbd></a>)
+    </li>
+  </ul>
+</fieldset>
+
+<fieldset>
+  <legend>Ordering</legend>
+
+  <ul class="list-unstyled">
+    <li class="radio">
+      <label>
+        <input type="radio" name="order" value="default" checked>
+        Report first alignments encountered
+      </label>
+    </li>
+
+    <li class="radio">
+      <label>
+        <input type="radio" name="order" value="best" id="order_is_best">
+        Report best alignments
+      </label>
+      (<a href="http://bowtie-bio.sourceforge.net/manual.shtml#bowtie-options-best"><kbd>--best</kbd></a>)
+
+      <ul class="list-unstyled list-indented">
+        <li class="checkbox">
+          <label>
+            <input type="checkbox" name="strata" data-requires="order_is_best">
+            Report only alignments in the single best stratum
+          </label>
+          (<a href="http://bowtie-bio.sourceforge.net/manual.shtml#bowtie-options-strata"><kbd>--strata</kbd></a>)
+        </li>
+      </ul>
+    </li>
+  </ul>
+</fieldset>

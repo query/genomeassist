@@ -1,0 +1,238 @@
+{% extends 'default.html' %}
+{% load genomeassist %}
+{% load humanize %}
+
+{% block title %}
+{% if job.deleted %}<del>{% endif %}{% if job.name %}Job “{{job.name}}”{% else %}Unnamed job{% endif %}{% if job.deleted %}</del>{% endif %}
+<small>As of <time datetime="{% now 'c' %}">{% now 'c' %}</time></small>
+{% endblock %}
+
+{% block content %}
+<div class="col-lg-4">
+  <ul class="nav nav-pills nav-stacked">
+    <li class="active"><a href="#job-{{job.id}}" data-toggle="tab"><strong>Summary</strong></a></li>
+    {% for task in job.task_set.all %}
+      <li>
+        <a href="#task-{{task.id}}" data-toggle="tab">
+          {% if task.name %}
+          {{task.aligner}} task “{{task.name}}”
+          {% else %}
+          Unnamed {{task.aligner}} task
+          {% endif %}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+
+<div class="col-lg-8">
+  <div class="tab-content">
+    <div class="tab-pane active" id="job-{{job.id}}">
+      <div class="panel-group" id="job-{{job.id}}_panels">
+        <div class="panel panel-{{job.state|state_class}}">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{job.state|lower|capfirst}}</h3>
+          </div>
+          <div class="panel-body">
+            <dl class="dl-horizontal">
+              <dt>Submitted</dt>
+              <dd>{{job.created_at|time}}</dd>
+
+              {% if job.celery_task %}
+                <dt>Finished</dt>
+                <dd>{{job.celery_task.date_done|time}}</dd>
+
+                <dt>Job ID</dt>
+                <dd>{{job.celery_task_id}}</dd>
+              {% endif %}
+            </dl>
+          </div>
+        </div> <!-- Status panel -->
+
+        {% if job.state == 'SUCCESS' %}
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">
+                <a data-toggle="collapse" href="#job-{{job.id}}_hitmap">Hit map ({{job.celery_task.result|length}} alignments)</a>
+              </h3>
+            </div>
+            <div class="panel-collapse collapse in" id="job-{{job.id}}_hitmap">
+              <div class="progress hitmap">
+                {% for locus, qv in job.celery_task.result.iteritems %}
+                  <div class="progress-bar hit"
+                    data-title="Position {{locus}}"
+                    data-content="QV avg. {{qv|floatformat:0}}"
+                    style="left: {% ratio locus reference_length True %}%; opacity: {% ratio qv 255 %};">
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div> <!-- Hit map -->
+
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">
+                <a data-toggle="collapse" href="#job-{{job.id}}_rusage">Resource usage statistics</a>
+              </h3>
+            </div>
+            <div class="panel-collapse collapse in" id="job-{{job.id}}_rusage">
+              <div class="panel-body">
+                <div id="job-{{job.id}}_rusage_chart"></div>
+                <script type="text/javascript" src="//www.google.com/jsapi"></script>
+                <script>
+                  google.load('visualization', '1.0', {'packages':['corechart']});
+                  google.setOnLoadCallback(function () {
+                    (new google.visualization.ColumnChart(
+                      document.getElementById('job-{{job.id}}_rusage_chart')
+                    )).draw(google.visualization.arrayToDataTable([
+                      [
+                        'Aligner',
+                        'User CPU time',
+                        'System CPU time',
+                        'Peak memory resident set size',
+                      ],
+                      {% for task in job.task_set.all %}
+                        [
+                          '{% if task.name %}{{task.name|escapejs|escape}}{% else %}{{task.aligner}}{% endif %}',
+                          {{task.celery_task.result.rusage.ru_utime|floatformat:3}},
+                          {{task.celery_task.result.rusage.ru_stime|floatformat:3}},
+                          {{task.celery_task.result.rusage.ru_maxrss_normalized}},
+                        ],
+                      {% endfor %}
+                    ]), {
+                      series: {
+                        2: {targetAxisIndex: 1}
+                      },
+                      vAxes: [
+                        {title: 'Time (seconds)', minValue: 0},
+                        {title: 'Memory (bytes)', minValue: 0}
+                      ]
+                    });
+                  });
+                </script>
+              </div>
+            </div>
+          </div> <!-- Resource usage -->
+        {% endif %}
+      </div> <!-- #job-{{job.id}}_panels -->
+
+      <p>
+        <form role="form" class="form-really-inline" action="{% url 'scheduler:create' %}" method="get">
+          <input type="hidden" name="prefill" value="{{job.id}}">
+          <button class="btn btn-default">Create a copy of this job</button>
+        </form>
+
+        {% if job.deleted %}
+          <form role="form" class="form-really-inline" action="{% url 'scheduler:undelete' job.id %}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-success">Undelete this job’s results</button>
+          </form>
+        {% else %}
+          <form role="form" class="form-really-inline" action="{% url 'scheduler:delete' job.id %}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-danger">Delete this job’s results</button>
+          </form>
+        {% endif %}
+      </p> <!-- Action buttons -->
+    </div> <!-- #job-{{job.id}} -->
+
+    {% for task in job.task_set.all %}
+      <div class="tab-pane" id="task-{{task.id}}">
+        <div class="panel-group" id="task-{{task.id}}_panels">
+          <div class="panel panel-{{task.state|state_class}}">
+            <div class="panel-heading">
+              <h3 class="panel-title">{{task.state|lower|capfirst}}</h3>
+            </div>
+            <div class="panel-body">
+              <dl class="dl-horizontal">
+                {% if task.celery_task %}
+                  <dt>Finished</dt>
+                  <dd>{{task.celery_task.date_done|time}}</dd>
+
+                  <dt>Job ID</dt>
+                  <dd>{{task.celery_task_id}}</dd>
+                {% endif %}
+              </dl>
+            </div>
+          </div> <!-- Status panel -->
+
+          {% if task.state == 'SUCCESS' %}
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">
+                  <a data-toggle="collapse" href="#task-{{task.id}}_hitmap">Hit map ({{task.celery_task.result.alignments|length}} alignments)</a>
+                </h3>
+              </div>
+              <div class="panel-collapse collapse in" id="task-{{task.id}}_hitmap">
+                <div class="progress hitmap">
+                  {% for alignment in task.celery_task.result.alignments %}
+                    <div class="progress-bar hit"
+                      data-title="Position {{alignment.locus}}"
+                      data-content="QV avg. {{alignment.quality|floatformat:0}}"
+                      style="left: {% ratio alignment.locus reference_length True %}%; opacity: {% ratio alignment.quality 255 %};">
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div> <!-- Hit map -->
+          {% endif %}
+
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">
+                <a data-toggle="collapse" href="#task-{{task.id}}_options">Options</a>
+              </h3>
+            </div>
+            <div class="panel-collapse collapse" id="task-{{task.id}}_options">
+              <div class="panel-body">
+                <pre class="pre-scrollable">{{task.options}}</pre>
+              </div>
+            </div>
+          </div> <!-- Options -->
+
+          {% if task.celery_task.result.out %}
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">
+                  <a data-toggle="collapse" href="#task-{{task.id}}_result">Output</a>
+                </h3>
+              </div>
+              <div class="panel-collapse collapse in" id="task-{{task.id}}_result">
+                <div class="panel-body">
+                  <pre class="pre-scrollable">{{task.celery_task.result.out}}</pre>
+                </div>
+              </div>
+            </div> <!-- Output -->
+          {% endif %}
+
+          {% if task.state == 'SUCCESS' %}
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">
+                  <a data-toggle="collapse" href="#task-{{task.id}}_rusage">Resource usage statistics</a>
+                </h3>
+              </div>
+              <div class="panel-collapse collapse in" id="task-{{task.id}}_rusage">
+                <table class="table">
+                  <tr>
+                    <th>User CPU time</th>
+                    <td>{{task.celery_task.result.rusage.ru_utime|floatformat:3}} seconds</td>
+                  </tr>
+                  <tr>
+                    <th>System CPU time</th>
+                    <td>{{task.celery_task.result.rusage.ru_stime|floatformat:3}} seconds</td>
+                  </tr>
+                  <tr>
+                    <th>Peak memory resident set size</th>
+                    <td>{{task.celery_task.result.rusage.ru_maxrss_normalized|intcomma}} bytes</td>
+                  </tr>
+                </table>
+              </div>
+            </div> <!-- Resource usage -->
+          {% endif %}
+        </div> <!-- #task-{{task.id}}_panels -->
+      </div> <!-- #task-{{task.id}} -->
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
